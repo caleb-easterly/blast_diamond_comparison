@@ -1,0 +1,47 @@
+#!/bin/bash -l
+#PBS -l walltime=8:00:00,nodes=4:ppn=8,mem=60gb
+#PBS -m abe
+#PBS -M easte080@umn.edu
+
+cd /home/griffint/easte080/compare_blast_diamond
+
+lowE=10
+highE=200000
+blockSize=5
+
+fasta_dir=data/rudney_data734ws
+fastaAll=$fasta_dir/all.fasta
+fastaLess20=$fasta_dir/less20.fasta
+fastaGeq20=$fasta_dir/geq20.fasta
+fastaLess30=$fasta_dir/less30.fasta
+fastaGeq30=$fasta_dir/geq30.fasta
+
+# short and long together 
+# blast1
+/usr/bin/time -o out/blast1.time -f %e src/run_blast.sh --fasta-in $fastaAll --matrix PAM30 --evalue $lowE  --out out/blast1.tab --proc 32
+
+# diamond1: evalue 10, default sens
+/usr/bin/time -o out/diamond1.time -f %e src/run_diamond.sh --fasta-in $fastaAll --matrix PAM30 --evalue $lowE --diamond-out out/diamond1.tab --block-size $blockSize --sens 0
+
+# diamond2: evalue 10, sensitive
+/usr/bin/time -o out/diamond2.time -f %e src/run_diamond.sh --fasta-in $fastaAll --matrix PAM30 --evalue $lowE --diamond-out out/diamond2.tab --block-size $blockSize --sens 1
+
+# diamond3: evalue 10, most sensitivity
+/usr/bin/time -o out/diamond3.time -f %e src/run_diamond.sh --fasta-in $fastaAll --matrix PAM30 --evalue $lowE --diamond-out out/diamond3.tab --block-size $blockSize --sens 2
+
+# blast2, greater e value
+/usr/bin/time -o out/blast2.time -f %e src/run_blast.sh --fasta-in $fastaAll --matrix PAM30 --evalue $highE  --out out/blast2.tab --proc 32
+
+# diamond4: evalue 200000, default sens
+/usr/bin/time -o out/diamond4.time -f %e src/run_diamond.sh --fasta-in $fastaAll --matrix PAM30 --evalue $highE --diamond-out out/diamond4.tab --block-size $blockSize --sens 0
+
+# diamond5: evalue 200000, sensitive
+/usr/bin/time -o out/diamond5.time -f %e src/run_diamond.sh --fasta-in $fastaAll --matrix PAM30 --evalue $highE --diamond-out out/diamond5.tab --block-size $blockSize --sens 1
+
+# diamond6: evalue 200000, more sensitive
+/usr/bin/time -o out/diamond6.time -f %e src/run_diamond.sh --fasta-in $fastaAll --matrix PAM30 --evalue $highE --diamond-out out/diamond6.tab --block-size $blockSize --sens 2 
+
+
+# short and long separately, less than/greater than 20 aa
+
+# short and long separately, lt/geq 30 aa

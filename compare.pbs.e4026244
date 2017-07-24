@@ -1,0 +1,9 @@
+/var/spool/torque/mom_priv/jobs/4026244.mesabim3.msi.umn.edu.SC: line 8: cd: /home/griffint/easte080/compare_blast_diamond: No such file or directory
+/usr/bin/time: out/btime1.o: No such file or directory
+/usr/bin/time: out/dtime1.o: No such file or directory
+/usr/bin/time: out/dtime2.o: No such file or directory
+/usr/bin/time: out/dtime3.o: No such file or directory
+/usr/bin/time: out/btime2.o: No such file or directory
+/usr/bin/time: out/dtime4.o: No such file or directory
+/usr/bin/time: out/dtime5.o: No such file or directory
+/usr/bin/time: out/dtime6.o: No such file or directory
