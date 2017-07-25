@@ -8,11 +8,15 @@
 # --block-size: this number times 6 is the amount of memory in GB
 # --sens: default value is 0, other options are 1 (--sensitive)
 #+ 	and 2 (--more-sensitive)
-
+# --proc number of threads 
 
 # default diamond db path; overwritten if parameter provided
 DIAMONDDB=/home/griffint/easte080/nr_db/nr.dmnd
 SENS=0
+
+# default threads option: nothing
+PROC=
+
 
 while [[ $# -gt 1 ]]
 do 
@@ -55,7 +59,10 @@ case $key in
 		*) 
 		echo "Incorrect sensitivity option: choose one of 0,1,2"
 		;;
-	esac	
+	esac
+	;;
+	--proc)
+	PROC="--threads $2"	
 	;;
 	*)
 	;;
@@ -65,17 +72,18 @@ done
 
 ## variables
 ##output format-read in from file
-outputFmt=$(cat outputFmt.txt)
+outputFmt=$(cat src/outputFmt.txt)
 
 
 ## run diamond
-home/griffint/easte080/diamond blastp \
+/home/griffint/easte080/diamond blastp \
 	-d "$DIAMONDDB" \
 	-q "$FASTA" \
 	-o "$DIAMONDOUT" \
 	-b "$BLOCKSIZE" \
 	--evalue "$EVALUE" \
 	$SENS_PASS \
+	$PROC \
 	--matrix "$MATRIX" \
 	--outfmt $outputFmt \
 	--comp-based-stats 1 \

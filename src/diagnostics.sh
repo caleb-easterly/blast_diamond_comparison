@@ -44,16 +44,6 @@ echo "Number of Unique Accessions Found" >> $output
 awk '{print $2}' $blast_in | sort -u | wc -l >> $output 
 echo >> $output 
 
-countStuff () {
-	
-	numMatches=$(wc -l $1 | awk '{print $1}')
-	uniqQuery=$(cat bSeq.temp | wc -l)
-	uniqAccessions=$(awk '{print $2}' $blast_in | sort -u | wc -l)
-
-	awk '{printf %d\t%d\t%d\n}, $numMatches, $uniqQuery, $uniqAccessions}' /dev/null
-}
-export -f countStuff
-
 echo "----Comparisons----" >> $output
 echo -e "**Query Sensitivity**" >> $output
 echo -e "This sensitivity is the number of reads for which Blast and Diamond find at least\none common alignment divided by the number of reads for which Blast finds at least\none alignment (percentage of queries mapped)\n*Common Alignments*">> $output

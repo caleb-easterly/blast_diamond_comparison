@@ -1,6 +1,15 @@
 *.pbs.e*
 *.pbs.o*
 *.temp
+temp
+temp/*
+
+out
 out/*
+
+data
 data/*
+
+
 *.swp
+*/**/*.swp

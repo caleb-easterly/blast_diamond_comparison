@@ -57,7 +57,7 @@ done
 
 ## variables
 ##output format-read in from file
-outputFmt=$(cat outputFmt.txt)
+outputFmt=$(cat src/outputFmt.txt)
 
 ## define num_threads based on arguments, for blast
 ## default is 1 (if num_threads is null, sub 1)
