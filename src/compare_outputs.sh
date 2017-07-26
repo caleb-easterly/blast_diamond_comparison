@@ -17,10 +17,10 @@ awk '{printf "%s:%s\n", $1, $2}' $1 | sort -u  > temp/diamondSeqAcc.temp
 # join on entire line, then select the query sequence (awk),
 # then count unique sequences
 # Queries Mapped by Both Methods
-commonSeq=$(join temp/diamondSeqAcc.temp temp/blastSeqAcc.temp | awk '{print $1}' | sort -u | wc -l)
+commonSeq=$(join temp/diamondSeqAcc.temp temp/blastSeqAcc.temp | awk -F ":" '{print $1}' | sort -u | wc -l)
 
 # Percentage of Queries Mapped
-percQueryMapped=$(echo "$commonSeq/$blastUniqQuery" | bc)
+percQueryMapped=$(echo "scale=3; $commonSeq/$blastUniqQuery" | bc ) 
 
 # Match Sensitivity
 # Measure of sensitivity based on number of alignments found both by Blast and Diamond
@@ -28,11 +28,11 @@ percQueryMapped=$(echo "$commonSeq/$blastUniqQuery" | bc)
 #+ 	(percentage of matches recovered)
 
 # Alignments Found by Both Methods
-commonMatch=$(join temp/diamondSeqAcc.temp temp/blastSeqAcc.temp | wc -l)
+commonAlign=$(join temp/diamondSeqAcc.temp temp/blastSeqAcc.temp | wc -l)
 
 # Percentage of Blast's Alignments Mapped
-percAlignMatch=$(echo "$commonMatch/$blastNumMatches" | bc)
+percAlignMatch=$(echo "scale=3; $commonAlign/$blastNumMatches" | bc )
 
-echo -e "$commonSeq\t$percQueryMapped\t$commonMatch\t$percAlignMatch"
-rm temp/acc temp/seq temp/blastSeqAcc.temp temp/diamondSeqAcc.temp
+echo -e "$commonSeq\t$percQueryMapped\t$commonAlign\t$percAlignMatch"
+
 exit 0
