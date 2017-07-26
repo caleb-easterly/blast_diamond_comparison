@@ -1,14 +1,22 @@
 #!/bin/bash -l
-#PBS -l walltime=24:00:00,nodes=4:ppn=8,mem=70gb
+#PBS -l walltime=36:00:00,nodes=5:ppn=8,mem=70gb
 #PBS -m abe
 #PBS -M easte080@umn.edu
+#PBS -o /home/griffint/easte080/blast_diamond_comparison/pbs/comparelong.stdout
+#PBS -e /home/griffint/easte080/blast_diamond_comparison/pbs/comparelong.stderr
 
 cd /home/griffint/easte080/blast_diamond_comparison
+
+# empty stderr and stdout, as PBS appends stuff
+echo > pbs/comparelong.stderr 
+echo > pbs/comparelong.stdout
+
+# useful constants
 lowE=0.001
 midE=10
 highE=200000
 BLOCKSIZE=4
-NUMPROC=32
+NUMPROC=40
 
 # paths to FASTA query files
 fasta_dir=data/rudney_data734ws
@@ -17,7 +25,7 @@ fastaLess20=$fasta_dir/less20.fasta
 fastaGeq20=$fasta_dir/geq20.fasta
 fastaLess30=$fasta_dir/less30.fasta
 fastaGeq30=$fasta_dir/geq30.fasta
-shortFasta=$fasta_dir/short_fasta.fasta
+fastaAll=$fasta_dir/short_fasta.fasta
 fastaLess30small=$fasta_dir/geq30small.fasta
 fastaGeq30small=$fasta_dir/less30small.fasta
 
@@ -37,12 +45,12 @@ DIAMOND_CONST_OPTS="-d $DIAMONDDB -b $BLOCKSIZE \
 
 BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
  
-##--------------- short and long together ----------------------##
+###--------------- short and long together ----------------------##
 ## lowest e value
 ## blast1 
 /usr/bin/time -o out/blast1.time -f %e \
 	blastp \
-	-query "$shortFasta" \
+	-query "$fastaAll" \
 	-matrix PAM30 \
 	-evalue $lowE  \
 	-out out/blast1.tab \
@@ -56,7 +64,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond1.tab \
 	--matrix PAM30 \
 	--evalue $lowE \
-	-q $shortFasta \
+	-q $fastaAll \
 	$DIAMOND_CONST_OPTS
 #
 ## diamond2: lowest e, sensitive
@@ -65,7 +73,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond2.tab \
 	--matrix PAM30 \
 	--evalue $lowE \
-	-q $shortFasta \
+	-q $fastaAll \
 	--sensitive \
 	$DIAMOND_CONST_OPTS
 
@@ -75,7 +83,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond3.tab \
 	--matrix PAM30 \
 	--evalue $lowE \
-	-q $shortFasta \
+	-q $fastaAll \
 	--more-sensitive \
 	$DIAMOND_CONST_OPTS
 
@@ -83,7 +91,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 ### blast2
 /usr/bin/time -o out/blast2.time -f %e \
 	blastp \
-	-query "$shortFasta" \
+	-query "$fastaAll" \
 	-matrix PAM30 \
 	-evalue $midE  \
 	-out out/blast2.tab \
@@ -96,7 +104,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond4.tab \
 	--matrix PAM30 \
 	--evalue $midE \
-	-q $shortFasta \
+	-q $fastaAll \
 	$DIAMOND_CONST_OPTS
 
 
@@ -106,7 +114,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond5.tab \
 	--matrix PAM30 \
 	--evalue $midE \
-	-q $shortFasta \
+	-q $fastaAll \
 	--sensitive \
 	$DIAMOND_CONST_OPTS
 
@@ -117,7 +125,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond6.tab \
 	--matrix PAM30 \
 	--evalue $midE \
-	-q $shortFasta \
+	-q $fastaAll \
 	--more-sensitive \
 	$DIAMOND_CONST_OPTS
 
@@ -126,7 +134,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 ### blast3, greater e value
 /usr/bin/time -o out/blast3.time -f %e \
 	blastp \
-	-query "$shortFasta" \
+	-query "$fastaAll" \
 	-matrix PAM30 \
 	-evalue $highE  \
 	-out out/blast3.tab \
@@ -140,7 +148,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond7.tab \
 	--matrix PAM30 \
 	--evalue $highE \
-	-q $shortFasta \
+	-q $fastaAll \
 	$DIAMOND_CONST_OPTS
 
 ## diamond8: evalue 200000, sensitive
@@ -149,7 +157,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond8.tab \
 	--matrix PAM30 \
 	--evalue $highE \
-	-q $shortFasta \
+	-q $fastaAll \
 	--sensitive \
 	$DIAMOND_CONST_OPTS
 
@@ -159,7 +167,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-o out/diamond9.tab \
 	--matrix PAM30 \
 	--evalue $highE \
-	-q $shortFasta \
+	-q $fastaAll \
 	--more-sensitive \
 	$DIAMOND_CONST_OPTS
 
@@ -191,7 +199,7 @@ combineSplitData () {
 	blastp \
 	-query "$fastaGeq20" \
 	-matrix BLOSUM62 \
-	-evalue "$lowE"  \
+	-evalue "$midE"  \
 	-out "out/blast4.tab2" \
 	$BLAST_CONST_OPTS \
 	-outfmt "$outputFmt"
@@ -209,8 +217,8 @@ combineSplitData "blast4"
 	$execDiamond blastp \
 	-o out/diamond10.tab2 \
 	--matrix BLOSUM62 \
-	--evalue $lowE \
-	-q $fastaGoe20 \
+	--evalue $midE \
+	-q $fastaGeq20 \
 	$DIAMOND_CONST_OPTS 
 combineSplitData "diamond10"
 
@@ -227,8 +235,8 @@ combineSplitData "diamond10"
 	$execDiamond blastp \
 	-o out/diamond11.tab2 \
 	--matrix BLOSUM62 \
-	--evalue $lowE \
-	-q $fastaGoe20 \
+	--evalue $midE \
+	-q $fastaGeq20 \
 	--sensitive \
 	$DIAMOND_CONST_OPTS 
 combineSplitData "diamond11"
@@ -247,8 +255,8 @@ combineSplitData "diamond11"
 	$execDiamond blastp \
 	-o out/diamond12.tab2 \
 	--matrix BLOSUM62 \
-	--evalue $lowE \
-	-q $fastaGoe20 \
+	--evalue $midE \
+	-q $fastaGeq20 \
 	--more-sensitive \
 	$DIAMOND_CONST_OPTS 
 combineSplitData "diamond12"
@@ -267,7 +275,7 @@ combineSplitData "diamond12"
 	blastp \
 	-query "$fastaGeq30" \
 	-matrix BLOSUM62 \
-	-evalue "$lowE"  \
+	-evalue "$midE"  \
 	-out "out/blast5.tab2" \
 	$BLAST_CONST_OPTS \
 	-outfmt "$outputFmt"
@@ -285,8 +293,8 @@ combineSplitData "blast5"
 	$execDiamond blastp \
 	-o out/diamond13.tab2 \
 	--matrix BLOSUM62 \
-	--evalue $lowE \
-	-q $fastaGoe30 \
+	--evalue $midE \
+	-q $fastaGeq30 \
 	$DIAMOND_CONST_OPTS 
 combineSplitData "diamond13"
 
@@ -303,8 +311,8 @@ combineSplitData "diamond13"
 	$execDiamond blastp \
 	-o out/diamond14.tab2 \
 	--matrix BLOSUM62 \
-	--evalue $lowE \
-	-q $fastaGoe30 \
+	--evalue $midE \
+	-q $fastaGeq30 \
 	--sensitive \
 	$DIAMOND_CONST_OPTS 
 combineSplitData "diamond14"
@@ -323,11 +331,12 @@ combineSplitData "diamond14"
 	$execDiamond blastp \
 	-o out/diamond15.tab2 \
 	--matrix BLOSUM62 \
-	--evalue $lowE \
-	-q $fastaGoe30 \
+	--evalue $midE \
+	-q $fastaGeq30 \
 	--more-sensitive \
 	$DIAMOND_CONST_OPTS 
 combineSplitData "diamond15"
 
-##-------------- diagnostics ----------------##
 
+##-------------- diagnostics ----------------##
+src/compAll.sh
