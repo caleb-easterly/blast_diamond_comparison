@@ -3,7 +3,7 @@ timefile=out/$1.time
 awk '{print $1}' $datafile | sort -u > temp/seq.temp
 
 numMatches=$(wc -l $datafile | awk '{print $1}')
-uniqQuery=$(cat seq.temp | wc -l)
+uniqQuery=$(cat temp/seq.temp | wc -l)
 uniqAccessions=$(awk '{print $2}' $datafile | sort -u | wc -l)
 walltime=$(cat $timefile)
 
