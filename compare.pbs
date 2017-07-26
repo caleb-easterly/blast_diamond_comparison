@@ -1,10 +1,10 @@
 #!/bin/bash -l
-#PBS -l walltime=4:00:00,nodes=4:ppn=8,mem=70gb
+#PBS -l walltime=24:00:00,nodes=4:ppn=8,mem=70gb
 #PBS -m abe
 #PBS -M easte080@umn.edu
 
 cd /home/griffint/easte080/blast_diamond_comparison
-lowestE=0.001
+lowE=0.001
 midE=10
 highE=200000
 BLOCKSIZE=4
@@ -18,6 +18,8 @@ fastaGeq20=$fasta_dir/geq20.fasta
 fastaLess30=$fasta_dir/less30.fasta
 fastaGeq30=$fasta_dir/geq30.fasta
 shortFasta=$fasta_dir/short_fasta.fasta
+fastaLess30small=$fasta_dir/geq30small.fasta
+fastaGeq30small=$fasta_dir/less30small.fasta
 
 # databases
 DIAMONDDB=/home/griffint/easte080/nr_db/nr.dmnd
@@ -35,14 +37,14 @@ DIAMOND_CONST_OPTS="-d $DIAMONDDB -b $BLOCKSIZE \
 
 BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
  
-# short and long together 
+##--------------- short and long together ----------------------##
 ## lowest e value
 ## blast1 
 /usr/bin/time -o out/blast1.time -f %e \
 	blastp \
 	-query "$shortFasta" \
 	-matrix PAM30 \
-	-evalue $lowestE  \
+	-evalue $lowE  \
 	-out out/blast1.tab \
 	$BLAST_CONST_OPTS \
 	-outfmt "$outputFmt"
@@ -53,7 +55,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	$execDiamond blastp\
 	-o out/diamond1.tab \
 	--matrix PAM30 \
-	--evalue $lowestE \
+	--evalue $lowE \
 	-q $shortFasta \
 	$DIAMOND_CONST_OPTS
 #
@@ -62,19 +64,20 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	$execDiamond blastp\
 	-o out/diamond2.tab \
 	--matrix PAM30 \
-	--evalue $lowestE \
+	--evalue $lowE \
 	-q $shortFasta \
 	--sensitive \
 	$DIAMOND_CONST_OPTS
 
-## diamond3: most sensitivity
+## diamond3: more sensitivity
 /usr/bin/time -o out/diamond3.time -f %e \
 	$execDiamond blastp\
 	-o out/diamond3.tab \
 	--matrix PAM30 \
-	--evalue $lowestE \
+	--evalue $lowE \
 	-q $shortFasta \
-	--more-s:#
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS
 
 ### middle e value
 ### blast2
@@ -86,9 +89,6 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-out out/blast2.tab \
 	$BLAST_CONST_OPTS \
 	-outfmt "$outputFmt"
-
-
-
 
 ##diamond 4: evalue 10, default sensitivity
 /usr/bin/time -o out/diamond4.time -f %e \
@@ -111,7 +111,7 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	$DIAMOND_CONST_OPTS
 
 
-## diamond6: evalue 10, most sensitivity
+## diamond6: evalue 10, more sensitivity
 /usr/bin/time -o out/diamond6.time -f %e \
 	$execDiamond blastp\
 	-o out/diamond6.tab \
@@ -143,8 +143,6 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-q $shortFasta \
 	$DIAMOND_CONST_OPTS
 
-
-#
 ## diamond8: evalue 200000, sensitive
 /usr/bin/time -o out/diamond8.time -f %e \
 	$execDiamond blastp\
@@ -154,7 +152,6 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	-q $shortFasta \
 	--sensitive \
 	$DIAMOND_CONST_OPTS
-
 
 ## diamond9: evalue 200000, more sensitive
 /usr/bin/time -o out/diamond9.time -f %e \
@@ -167,7 +164,170 @@ BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
 	$DIAMOND_CONST_OPTS
 
 
-#
-## short and long separately, less than/greater than 20 aa
-#
-## short and long separately, lt/geq 30 aa
+##---------------- short and long separately, less than/greater than 20 aa ------------##
+# function for writing given method and number
+combineSplitData () {
+	filename=$1
+
+	# add times
+	time1=$(cat out/$filename.time1)
+	time2=$(cat out/$filename.time2)
+	echo "${time1:-0} + ${time2:-0}" | bc > "out/$filename.time"
+
+	# concatenate output
+	cat out/$filename.tab1 out/$filename.tab2 > out/$filename.tab
+}
+
+### blast4
+/usr/bin/time -o out/blast4.time1 -f %e \
+	blastp -task blastp-short \
+	-query "$fastaLess20" \
+	-matrix PAM30 \
+	-evalue "$highE"  \
+	-out "out/blast4.tab1" \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt" 
+/usr/bin/time -o out/blast4.time2 -f %e \
+	blastp \
+	-query "$fastaGeq20" \
+	-matrix BLOSUM62 \
+	-evalue "$lowE"  \
+	-out "out/blast4.tab2" \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt"
+combineSplitData "blast4"
+
+### diamond 10: default sensitivity
+/usr/bin/time -o out/diamond10.time1 -f %e \
+	$execDiamond blastp \
+	-o out/diamond10.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess20 \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o out/diamond10.time2 -f %e \
+	$execDiamond blastp \
+	-o out/diamond10.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $lowE \
+	-q $fastaGoe20 \
+	$DIAMOND_CONST_OPTS 
+combineSplitData "diamond10"
+
+### diamond 11: sensitive
+/usr/bin/time -o out/diamond11.time1 -f %e \
+	$execDiamond blastp \
+	-o out/diamond11.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess20 \
+	--sensitive \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o out/diamond11.time2 -f %e \
+	$execDiamond blastp \
+	-o out/diamond11.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $lowE \
+	-q $fastaGoe20 \
+	--sensitive \
+	$DIAMOND_CONST_OPTS 
+combineSplitData "diamond11"
+
+
+### diamond 12: more sensitive
+/usr/bin/time -o out/diamond12.time1 -f %e \
+	$execDiamond blastp \
+	-o out/diamond15.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess20 \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o out/diamond12.time2 -f %e \
+	$execDiamond blastp \
+	-o out/diamond12.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $lowE \
+	-q $fastaGoe20 \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS 
+combineSplitData "diamond12"
+
+##---------- short and long separately, lt/geq 30 aa -----------##
+### blast5
+/usr/bin/time -o out/blast5.time1 -f %e \
+	blastp -task blastp-short \
+	-query "$fastaLess30" \
+	-matrix PAM30 \
+	-evalue "$highE"  \
+	-out "out/blast5.tab1" \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt" 
+/usr/bin/time -o out/blast5.time2 -f %e \
+	blastp \
+	-query "$fastaGeq30" \
+	-matrix BLOSUM62 \
+	-evalue "$lowE"  \
+	-out "out/blast5.tab2" \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt"
+combineSplitData "blast5"
+
+### diamond 13: default sensitivity
+/usr/bin/time -o out/diamond13.time1 -f %e \
+	$execDiamond blastp \
+	-o out/diamond13.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess30 \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o out/diamond13.time2 -f %e \
+	$execDiamond blastp \
+	-o out/diamond13.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $lowE \
+	-q $fastaGoe30 \
+	$DIAMOND_CONST_OPTS 
+combineSplitData "diamond13"
+
+### diamond 14: sensitive
+/usr/bin/time -o out/diamond14.time1 -f %e \
+	$execDiamond blastp \
+	-o out/diamond14.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess30 \
+	--sensitive \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o out/diamond14.time2 -f %e \
+	$execDiamond blastp \
+	-o out/diamond14.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $lowE \
+	-q $fastaGoe30 \
+	--sensitive \
+	$DIAMOND_CONST_OPTS 
+combineSplitData "diamond14"
+
+
+### diamond 15: more sensitive
+/usr/bin/time -o out/diamond15.time1 -f %e \
+	$execDiamond blastp \
+	-o out/diamond15.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess30 \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o out/diamond15.time2 -f %e \
+	$execDiamond blastp \
+	-o out/diamond15.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $lowE \
+	-q $fastaGoe30 \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS 
+combineSplitData "diamond15"
+
+##-------------- diagnostics ----------------##
+
