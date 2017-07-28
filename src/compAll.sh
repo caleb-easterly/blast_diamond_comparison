@@ -1,3 +1,30 @@
+# change to project root, to accurately use out and src 
+cd /home/griffint/easte080/blast_diamond_comparison
+
+# function for writing given method and number
+combineSplitData () {
+	filename=$1
+
+	# add times
+	time1=$(cat out/$filename.time1)
+	time2=$(cat out/$filename.time2)
+	echo "${time1:-0} + ${time2:-0}" | bc > "out/$filename.time"
+
+	# concatenate output
+	cat out/$filename.tab1 out/$filename.tab2 > out/$filename.tab
+}
+
+
+
+# combine data
+combineSplitData "blast4"
+combineSplitData "diamond10"
+combineSplitData "diamond11"
+combineSplitData "diamond12"
+combineSplitData "blast5"
+combineSplitData "diamond13"
+combineSplitData "diamond14"
+combineSplitData "diamond15"
 
 names="blast1 diamond1 diamond2 diamond3 blast2 diamond4 diamond5 diamond6 blast3 diamond7 diamond8 diamond9 blast4 diamond10 diamond11 diamond12 blast5 diamond13 diamond14 diamond15"
 
