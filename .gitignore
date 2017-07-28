@@ -1,9 +1,6 @@
 *.pbs.e*
 *.pbs.o*
 
-pbs
-pbs/*
-
 *.temp
 temp
 temp/*

@@ -1,0 +1,53 @@
+
+Starting diamond2
+diamond v0.9.9.110 | by Benjamin Buchfink <buchfink@gmail.com>
+Licensed under the GNU AGPL <https://www.gnu.org/licenses/agpl.txt>
+Check http://github.com/bbuchfink/diamond for updates.
+
+#CPU threads: 39
+Scoring parameters: (Matrix=PAM30 Lambda=0.294 K=0.11 Penalties=9/1)
+#Target sequences to report alignments for: 100
+Temporary directory: out
+Opening the database...  [0.010412s]
+Opening the input file...  [0.006249s]
+Opening the output file...  [0.006514s]
+Loading query sequences...  [0.002151s]
+Masking queries...  [0.005405s]
+Building query seed set...  [0.002034s]
+Algorithm: Query-indexed
+Building query histograms...  [0.005751s]
+Allocating buffers...  [0.002052s]
+Loading reference sequences... diamond2 finished
+starting diamond3
+diamond v0.9.9.110 | by Benjamin Buchfink <buchfink@gmail.com>
+Licensed under the GNU AGPL <https://www.gnu.org/licenses/agpl.txt>
+Check http://github.com/bbuchfink/diamond for updates.
+
+#CPU threads: 39
+Scoring parameters: (Matrix=PAM30 Lambda=0.294 K=0.11 Penalties=9/1)
+#Target sequences to report alignments for: 100
+Temporary directory: out
+Opening the database...  [0.002532s]
+Opening the input file...  [0.002436s]
+Opening the output file...  [0.003433s]
+Loading query sequences...  [0.002098s]
+Masking queries...  [0.005115s]
+Building query seed set...  [0.001988s]
+Algorithm: Query-indexed
+Building query histograms...  [0.004955s]
+Allocating buffers...  [0.002034s]
+Loading reference sequences... diamond3 finished
+ [162.284s]
+Building reference histograms...  [1.19361s]
+Allocating buffers...  [4.3e-05s]
+Initializing temporary storage...  [1.49927s]
+Processing query chunk 0, reference chunk 8, shape 0, index chunk 0.
+Building reference index...  [5.52046s]
+Building query index...  [0.003627s]
+Building seed filter...  [0.205915s]
+Searching alignments...  [6.38271s]
+Deallocating buffers...  [0.013094s]
+Opening temporary output file...  [0.006528s]
+Computing alignments...  [0.568482s]
+Deallocating reference...  [0.012179s]
+Loading reference sequences... 
