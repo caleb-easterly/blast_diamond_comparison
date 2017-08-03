@@ -1,0 +1,359 @@
+#!/bin/bash -l
+#PBS -l walltime=96:00:00,nodes=3:ppn=8,mem=80gb
+#PBS -m abe
+#PBS -M easte080@umn.edu
+
+cd /home/griffint/easte080/blast_diamond_comparison
+
+# useful constants
+lowE=0.001
+midE=10
+highE=200000
+BLOCKSIZE=5
+NUMPROC=$(nproc --all)
+NUMPROC=$(($NUMPROC - 1))
+
+# paths to FASTA query files
+fasta_dir=../candace_data
+fastaAll=$fasta_dir/all.fasta
+fastaLess20=$fasta_dir/less20.fasta
+fastaGeq20=$fasta_dir/geq20.fasta
+fastaLess30=$fasta_dir/less30.fasta
+fastaGeq30=$fasta_dir/geq30.fasta
+
+# databases
+DIAMONDDB=/home/griffint/easte080/nr_db/nr.dmnd
+BLASTDB=/home/griffint/easte080/blastdb/nr.blast
+
+# output format
+outputFmt="6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen"
+
+# path to diamond executable
+execDiamond=/home/griffint/easte080/diamond 
+
+# options that don't change in all diamond runs
+DIAMOND_CONST_OPTS="-d $DIAMONDDB -b $BLOCKSIZE \
+--threads $NUMPROC --outfmt $outputFmt --comp-based-stats 1 --max-target-seqs 100"
+
+BLAST_CONST_OPTS="-db $BLASTDB -max_target_seqs 100 -num_threads $NUMPROC"
+
+OUT_DIR=/home/griffint/easte080/blast_diamond_comparison/candace_out
+
+###--------------- short and long together ----------------------##
+# lowest e value
+# blast1 
+
+echo -e "\nStarting blast1"
+/usr/bin/time -o $OUT_DIR/blast1.time -f %e \
+	blastp \
+	-query "$fastaAll" \
+	-matrix PAM30 \
+	-evalue $lowE  \
+	-out $OUT_DIR/blast1.tab \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt"
+echo -e "\nblast1 finished"
+
+# diamond1: lowest e value, default sens
+echo -e "\nStarting diamond1"
+/usr/bin/time -o $OUT_DIR/diamond1.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond1.tab \
+	--matrix PAM30 \
+	--evalue $lowE \
+	-q $fastaAll \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond1 finished"
+
+
+# diamond2: lowest e, sensitive
+echo -e "\nStarting diamond2"
+/usr/bin/time -o $OUT_DIR/diamond2.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond2.tab \
+	--matrix PAM30 \
+	--evalue $lowE \
+	-q $fastaAll \
+	--sensitive \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond2 finished"
+
+## diamond3: more sensitivity
+echo -e "\nstarting diamond3"
+/usr/bin/time -o $OUT_DIR/diamond3.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond3.tab \
+	--matrix PAM30 \
+	--evalue $lowE \
+	-q $fastaAll \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond3 finished"
+
+### middle e value
+### blast2
+echo -e "\nstarting blast2" 
+/usr/bin/time -o $OUT_DIR/blast2.time -f %e \
+	blastp \
+	-query "$fastaAll" \
+	-matrix PAM30 \
+	-evalue $midE  \
+	-out $OUT_DIR/blast2.tab \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt"
+echo -e "\nblast2 finished"
+
+
+##diamond 4: evalue 10, default sensitivity
+echo -e "\nstarting diamond4"
+/usr/bin/time -o $OUT_DIR/diamond4.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond4.tab \
+	--matrix PAM30 \
+	--evalue $midE \
+	-q $fastaAll \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond4 finished"
+
+### diamond5: evalue 10, sensitive
+echo -e "\nstarting diamond5"
+/usr/bin/time -o $OUT_DIR/diamond5.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond5.tab \
+	--matrix PAM30 \
+	--evalue $midE \
+	-q $fastaAll \
+	--sensitive \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond5 finished"
+
+## diamond6: evalue 10, more sensitivity
+echo -e "\nstarting diamond6"
+/usr/bin/time -o $OUT_DIR/diamond6.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond6.tab \
+	--matrix PAM30 \
+	--evalue $midE \
+	-q $fastaAll \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond6 finished"
+
+### greatest e value
+### blast3, greater e value
+echo -e "\nstarting blast3"
+/usr/bin/time -o $OUT_DIR/blast3.time -f %e \
+	blastp \
+	-query "$fastaAll" \
+	-matrix PAM30 \
+	-evalue $highE  \
+	-out $OUT_DIR/blast3.tab \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt"
+echo -e "\nblast3 finished"
+
+
+## diamond7: evalue 200000, default sens
+echo -e "\nstarting diamond7"
+/usr/bin/time -o $OUT_DIR/diamond7.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond7.tab \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaAll \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond7 finished"
+
+## diamond8: evalue 200000, sensitive
+echo -e "\nstarting diamond8"
+/usr/bin/time -o $OUT_DIR/diamond8.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond8.tab \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaAll \
+	--sensitive \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond8 finished"
+
+
+## diamond9: evalue 200000, more sensitive
+echo -e "\nstarting diamond9"
+/usr/bin/time -o $OUT_DIR/diamond9.time -f %e \
+	$execDiamond blastp\
+	-o $OUT_DIR/diamond9.tab \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaAll \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS
+echo -e "\ndiamond9 finished"
+
+##---------------- short and long separately, less than/greater than 20 aa ------------##
+### blast4
+echo -e "starting blast4"
+/usr/bin/time -o $OUT_DIR/blast4.time1 -f %e \
+	blastp -task blastp-short \
+	-query "$fastaLess20" \
+	-matrix PAM30 \
+	-evalue "$highE"  \
+	-out "$OUT_DIR/blast4.tab1" \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt" 
+/usr/bin/time -o $OUT_DIR/blast4.time2 -f %e \
+	blastp \
+	-query "$fastaGeq20" \
+	-matrix BLOSUM62 \
+	-evalue "$midE"  \
+	-out "$OUT_DIR/blast4.tab2" \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt"
+echo -e "blast4 finished"
+
+### diamond 10: default sensitivity
+echo -e "starting diamond10"
+/usr/bin/time -o $OUT_DIR/diamond10.time1 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond10.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess20 \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o $OUT_DIR/diamond10.time2 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond10.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $midE \
+	-q $fastaGeq20 \
+	$DIAMOND_CONST_OPTS 
+echo -e "\ndiamond10 finished"
+
+
+### diamond 11: sensitive
+echo -e "\nstarting diamond11"
+/usr/bin/time -o $OUT_DIR/diamond11.time1 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond11.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess20 \
+	--sensitive \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o $OUT_DIR/diamond11.time2 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond11.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $midE \
+	-q $fastaGeq20 \
+	--sensitive \
+	$DIAMOND_CONST_OPTS 
+echo -e "\ndiamond11 finished"
+
+
+### diamond 12: more sensitive
+echo -e "\nstarting diamond12"
+/usr/bin/time -o $OUT_DIR/diamond12.time1 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond12.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess20 \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o $OUT_DIR/diamond12.time2 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond12.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $midE \
+	-q $fastaGeq20 \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS 
+echo -e "\ndiamond12 finished"
+
+##---------- short and long separately, lt/geq 30 aa -----------##
+### blast5
+echo -e "\nstarting blast5"
+/usr/bin/time -o $OUT_DIR/blast5.time1 -f %e \
+	blastp -task blastp-short \
+	-query "$fastaLess30" \
+	-matrix PAM30 \
+	-evalue "$highE"  \
+	-out "$OUT_DIR/blast5.tab1" \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt" 
+/usr/bin/time -o $OUT_DIR/blast5.time2 -f %e \
+	blastp \
+	-query "$fastaGeq30" \
+	-matrix BLOSUM62 \
+	-evalue "$midE"  \
+	-out "$OUT_DIR/blast5.tab2" \
+	$BLAST_CONST_OPTS \
+	-outfmt "$outputFmt"
+echo -e "\nblast5 finished"
+
+
+### diamond 13: default sensitivity
+echo -e "\nstarting blast13"
+/usr/bin/time -o $OUT_DIR/diamond13.time1 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond13.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess30 \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o $OUT_DIR/diamond13.time2 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond13.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $midE \
+	-q $fastaGeq30 \
+	$DIAMOND_CONST_OPTS 
+echo -e "\nblast13 finished"
+
+
+### diamond 14: sensitive
+echo -e "\nstarting diamond14"
+/usr/bin/time -o $OUT_DIR/diamond14.time1 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond14.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess30 \
+	--sensitive \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o $OUT_DIR/diamond14.time2 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond14.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $midE \
+	-q $fastaGeq30 \
+	--sensitive \
+	$DIAMOND_CONST_OPTS 
+echo -e "\ndiamond14 finished"
+
+### diamond 15: more sensitive
+echo -e "\nstarting diamond15"
+/usr/bin/time -o $OUT_DIR/diamond15.time1 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond15.tab1 \
+	--matrix PAM30 \
+	--evalue $highE \
+	-q $fastaLess30 \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS 
+/usr/bin/time -o $OUT_DIR/diamond15.time2 -f %e \
+	$execDiamond blastp \
+	-o $OUT_DIR/diamond15.tab2 \
+	--matrix BLOSUM62 \
+	--evalue $midE \
+	-q $fastaGeq30 \
+	--more-sensitive \
+	$DIAMOND_CONST_OPTS 
+echo -e "\ndiamond15 finished"
+
+echo "Running comparisons"
+src/compAll.sh
+echo "comparisons finished"
+exit 0
+
+
