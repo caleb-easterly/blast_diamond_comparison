@@ -1,5 +1,10 @@
-datafile=out/$1.tab
-timefile=out/$1.time
+# first argument is output directory, second is 
+# name of data file
+
+OUT_DIR=$1
+datafile=$OUT_DIR/$2.tab
+timefile=$OUT_DIR/$2.time
+
 awk '{print $1}' $datafile | sort -u > temp/seq.temp
 
 numMatches=$(wc -l $datafile | awk '{print $1}')

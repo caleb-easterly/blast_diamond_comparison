@@ -1,7 +1,9 @@
-# first argument is diamond output, second is blast output
+# first argument is output dir,
+# second is is diamond name, second is blast name
 
-diamondDataFile=out/$1.tab
-blastDataFile=out/$2.tab
+OUT_DIR=$1
+diamondDataFile=$OUT_DIR/$2.tab
+blastDataFile=$OUT_DIR/$3.tab
 
 # basic data on blast
 blastNumMatches=$(wc -l $diamondDataFile | awk '{print $1}')
