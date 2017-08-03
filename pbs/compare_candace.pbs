@@ -352,7 +352,7 @@ echo -e "\nstarting diamond15"
 echo -e "\ndiamond15 finished"
 
 echo "Running comparisons"
-src/compAll.sh
+src/compAll.sh candace_out
 echo "comparisons finished"
 exit 0
 
