@@ -44,6 +44,6 @@ ggplot(all_df) +
     facet_grid(var~.) + 
     theme_bw(base_size=14) +
     scale_fill_manual(values=c("yellow", "red", "dodgerblue"))+
-    scale_x_continuous(breaks=seq(5, 45, by = 5), limits = c(5, 45)) + 
+    scale_x_continuous(breaks=seq(5, 35, by = 5), limits = c(5, 35)) + 
     labs(y="Density", x="Sequence Length", title="Lengths of Matched Queries")
 ggsave("candace_lengths.png", width=8, height=10, units="in")
