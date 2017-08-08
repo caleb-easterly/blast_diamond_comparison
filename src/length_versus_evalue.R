@@ -27,7 +27,7 @@ ggplot(subset(all_df)) +
     facet_grid(.~method)
 ggsave("images/length_versus_evalue.png", width=10, height=7, units="in")
 
-ggplot(subset(all_df, Evalue < 0.001)) + 
+ggplot(subset(all_df, Evalue < 10)) + 
     geom_hex(aes(x=MatchLength,y=Evalue))+
     theme_bw() +
     theme(aspect.ratio =1) +
