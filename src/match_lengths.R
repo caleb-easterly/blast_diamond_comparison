@@ -55,4 +55,4 @@ ggplot(all_df) +
     scale_fill_manual(values=c("yellow", "red", "dodgerblue"))+
     scale_x_continuous(breaks=seq(5, 45, by = 5), limits = c(5, 45)) + 
     labs(y="Density", x="Sequence Length", title="Lengths of Matched Queries")
-ggsave("lengths.png", width=8, height=10, units="in")
+ggsave("images/lengths.png", width=8, height=10, units="in")
