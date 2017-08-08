@@ -6,7 +6,7 @@ diamondDataFile=$OUT_DIR/$2.tab
 blastDataFile=$OUT_DIR/$3.tab
 
 # basic data on blast
-blastNumMatches=$(wc -l $diamondDataFile | awk '{print $1}')
+blastNumMatches=$(wc -l $blastDataFile | awk '{print $1}')
 blastUniqQuery=$(awk '{print $1}' $blastDataFile | sort -u | wc -l)
 
 # ----Comparisons----
